@@ -1,7 +1,7 @@
 package main
 
 // Make2D makes a 2D slice of any type of the given width and height
-// src:  https://stackoverflow.com/a/71781206
+// src:  https://stackoverflow.com/a/71781206 (adapted)
 func Make2D[Type any](n, m int) [][]Type {
 	matrix := make([][]Type, n)
 	rows := make([]Type, n*m)
