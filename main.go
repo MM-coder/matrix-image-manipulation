@@ -36,7 +36,7 @@ func assertSignature(file *os.File, signature []byte) (bool, error) {
 }
 
 // readImageToMatrix takes a path for a given PNG image and returns a 2D uint8 slice that represents the matrix for that image
-func readImageToMatrix(path string) ([][]uint8, error) {
+func readImageToMatrix(path string) ([][][4]uint32, error) {
 	file, err := os.Open(path) // Open the provided file
 	if err != nil {
 		return nil, err
@@ -63,13 +63,16 @@ func readImageToMatrix(path string) ([][]uint8, error) {
 	// This operation is inherently 0(n²), alternative implementations have been studied where imageData was cast to an
 	// image.NRGBA however this implementation didn't provide us with an operable 2D matrix
 
-	for y := 0; y < height; y++ {
-		for x := 0; x < width; x++ {
-			colour := imageData.At(x, y)
-			fmt.Println(colour)
+	matrix := Make2D[[4]uint32](width, height)
+
+	for y := 0; y < height-1; y++ {
+		for x := 0; x < width-1; x++ {
+			r, g, b, a := imageData.At(x, y).RGBA()
+			// @TODO(Mauro): comment or explain why we use 257 instead of any other number
+			matrix[x][y] = [4]uint32{r / 257, g / 257, b / 257, a / 257}
 		}
 	}
 
-	return nil, errors.New("unable to read image file as NRGBA")
+	return matrix, nil
 
 }
