@@ -9,12 +9,19 @@ import (
 )
 
 func main() {
-	matrix, err := readImageToMatrix("./shrekfly.png")
+	var path string
+	fmt.Print("Input file path: ")
+	_, err := fmt.Scan(&path)
 	if err != nil {
+		fmt.Println("Error requesting input from user.")
+		return
+	}
+	matrix, err := readImageToMatrix(path)
+	if err != nil {
+		fmt.Println(err)
 		return
 	}
 	fmt.Println(matrix)
-	fmt.Println(err)
 }
 
 // assertSignature asserts that a given os.File's signature (first n bytes of the file) are a given signature
