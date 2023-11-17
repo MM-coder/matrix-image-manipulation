@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"image"
+	"image/color"
 	"image/png"
 	"os"
 )
@@ -21,7 +23,8 @@ func main() {
 		fmt.Println(err)
 		return
 	}
-	fmt.Println(matrix)
+	//fmt.Println(matrix)
+	_ = writeImageFromMatrix(matrix, path+"new")
 }
 
 // assertSignature asserts that a given os.File's signature (first n bytes of the file) are a given signature
@@ -64,9 +67,10 @@ func readImageToMatrix(path string) ([][][4]uint32, error) {
 	// image.NRGBA however this implementation didn't provide us with an operable 2D matrix
 
 	matrix := Make2D[[4]uint32](width, height)
+	fmt.Println(width, height)
 
-	for y := 0; y < height-1; y++ {
-		for x := 0; x < width-1; x++ {
+	for y := 0; y < height; y++ {
+		for x := 0; x < width; x++ {
 			r, g, b, a := imageData.At(x, y).RGBA()
 			// @TODO(Mauro): comment or explain why we use 257 instead of any other number
 			matrix[x][y] = [4]uint32{r / 257, g / 257, b / 257, a / 257}
@@ -74,5 +78,31 @@ func readImageToMatrix(path string) ([][][4]uint32, error) {
 	}
 
 	return matrix, nil
+}
 
+// writeImageFromMatrix takes a matrix from readImageToMatrix and outputs a PNG image to a given path
+func writeImageFromMatrix(matrix [][][4]uint32, path string) error {
+	height := len(matrix[0])
+	width := len(matrix)
+	fmt.Println(width, height)
+	img := image.NewNRGBA(image.Rect(0, 0, width, height))
+
+	for y := 0; y < height; y++ {
+		for x := 0; x < width; x++ {
+			r, g, b, a := matrix[x][y][0], matrix[x][y][1], matrix[x][y][2], matrix[x][y][3]
+			img.SetNRGBA(x, y, color.NRGBA{R: uint8(r), G: uint8(g), B: uint8(b), A: uint8(a)})
+		}
+	}
+
+	// Create the file
+	file, err := os.Create(path)
+	if err != nil {
+		return err
+	}
+	defer func(file *os.File) {
+		_ = file.Close()
+	}(file)
+
+	// Encode as PNG
+	return png.Encode(file, img)
 }
