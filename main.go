@@ -1,13 +1,13 @@
 package main
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
 	"image"
 	"image/color"
 	"image/png"
 	"os"
+	"strings"
 )
 
 func main() {
@@ -24,18 +24,9 @@ func main() {
 		return
 	}
 	//fmt.Println(matrix)
-	_ = writeImageFromMatrix(matrix, path+"new")
-}
+	matrix, _ = gaussianFilter(matrix, 7, 10.5)
+	_ = writeImageFromMatrix(matrix, strings.TrimSuffix(path, ".png")+"_new.png")
 
-// assertSignature asserts that a given os.File's signature (first n bytes of the file) are a given signature
-// this is preferred to using mimetype as Go's built-in mimetype detection is quite deficient
-func assertSignature(file *os.File, signature []byte) (bool, error) {
-	fileSignature := make([]byte, len(signature)) // Make a new slice to hold the signature
-	_, err := file.ReadAt(fileSignature, 0)       // read the first N bytes of the file
-	if err != nil {
-		return false, err
-	}
-	return bytes.Equal(fileSignature, signature), nil // Using bytes.Equal assert that the provided signature corresponds to the known signature
 }
 
 // readImageToMatrix takes a path for a given PNG image and returns a 2D uint8 slice that represents the matrix for that image
@@ -82,11 +73,10 @@ func readImageToMatrix(path string) ([][][4]uint32, error) {
 
 // writeImageFromMatrix takes a matrix from readImageToMatrix and outputs a PNG image to a given path
 func writeImageFromMatrix(matrix [][][4]uint32, path string) error {
-	height := len(matrix[0])
-	width := len(matrix)
-	fmt.Println(width, height)
-	img := image.NewNRGBA(image.Rect(0, 0, width, height))
+	height, width := len(matrix[0]), len(matrix)           // Get the width and height of the matrix
+	img := image.NewNRGBA(image.Rect(0, 0, width, height)) // Create a new generic image with the appropriate width and height
 
+	// Iterate through the matrix and set values for each of the pixels
 	for y := 0; y < height; y++ {
 		for x := 0; x < width; x++ {
 			r, g, b, a := matrix[x][y][0], matrix[x][y][1], matrix[x][y][2], matrix[x][y][3]
@@ -94,13 +84,12 @@ func writeImageFromMatrix(matrix [][][4]uint32, path string) error {
 		}
 	}
 
-	// Create the file
-	file, err := os.Create(path)
-	if err != nil {
+	file, err := os.Create(path) // Create the file
+	if err != nil {              // Return errors
 		return err
 	}
 	defer func(file *os.File) {
-		_ = file.Close()
+		_ = file.Close() // Close the file
 	}(file)
 
 	// Encode as PNG
