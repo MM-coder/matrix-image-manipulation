@@ -1,8 +1,11 @@
 package matrix_image_manipulation
 
 import (
+	"fmt"
 	"image"
+	"image/color"
 	"os"
+	"strconv"
 	"testing"
 )
 
@@ -11,18 +14,62 @@ func loadImage(filePath string) (image.Image, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer file.Close()
+	defer func(file *os.File) {
+		_ = file.Close()
+	}(file)
 
 	img, _, err := image.Decode(file)
 	return img, err
 }
 
+// assertColourEquality checks the equality of two color.Color objects
+// we're required to do this as RGBA and NRGBA are different for go
+func assertColourEquality(colour1 color.Color, colour2 color.Color) bool {
+	r1, g1, b1, a1 := colour1.RGBA()
+	r2, g2, b2, a2 := colour2.RGBA()
+	return r1 == r2 && g1 == g2 && b1 == b2 && a1 == a2
+}
+
 // TestMatrixContinuity tests that if an image is converted to a matrix, and then back, it remains the same
 func TestMatrixContinuity(t *testing.T) {
-	// Load test images
-	image, err := loadImage("test_images/image1.png")
+
+	var testImagePath string = ".github/test_images/gnome.png"
+
+	matrix, err := readImageToMatrix(testImagePath)
 	if err != nil {
-		t.Fatalf("Failed to load image1: %s", err)
+		t.Fatalf("Failed to load the test image: %s", err)
+		return
+	}
+
+	temporaryPath := t.TempDir() + "gnome.png"
+
+	_ = writeImageFromMatrix(matrix, temporaryPath)
+
+	generatedImage, err := loadImage(temporaryPath)
+	if err != nil {
+		t.Fatalf("Failed loading the created image: %s", err)
+		return
+	}
+
+	originalImage, err := loadImage(testImagePath)
+	if err != nil {
+		t.Fatalf("Failed loading the created image: %s", err)
+		return
+	}
+
+	if generatedImage.Bounds() != originalImage.Bounds() {
+		t.Errorf("Image dimensions are different: %s != %s", generatedImage.Bounds(), originalImage.Bounds())
+		return
+	}
+
+	for y := originalImage.Bounds().Min.Y; y < originalImage.Bounds().Max.Y; y++ {
+		for x := originalImage.Bounds().Min.X; x < originalImage.Bounds().Max.X; x++ {
+			if !assertColourEquality(originalImage.At(x, y), generatedImage.At(x, y)) {
+				fmt.Println(originalImage.At(x, y), generatedImage.At(x, y))
+				t.Errorf("Image pixels are not the same, failed at coord (%s, %s)", strconv.Itoa(x), strconv.Itoa(y))
+				return
+			}
+		}
 	}
 
 }
