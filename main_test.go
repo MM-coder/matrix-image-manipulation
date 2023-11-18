@@ -81,18 +81,20 @@ func TestMatrixContinuity(t *testing.T) {
 func TestMake2D(t *testing.T) {
 	const testRuns = 20
 	for i := 0; i < testRuns; i++ {
-		width, height := rand.Intn(100)+1, rand.Intn(100)+1 // As  rand.Intn returns from [0, n] we must add one to assert n is never 0
+		width, height := rand.Intn(100)+1, rand.Intn(100)+1 // As rand.Intn returns from [0, n] we must add one to assert n is never 0
 		matrix := Make2D[[4]int32](width, height)
 
 		// Check if the number of rows is n
 		if len(matrix) != width {
 			t.Errorf("Expected %d rows, got %d", width, len(matrix))
+			return
 		}
 
 		// Check if each row has m elements
 		for i, row := range matrix {
 			if len(row) != height {
 				t.Errorf("Expected %d elements in row %d, got %d", height, i, len(row))
+				return
 			}
 		}
 
@@ -101,6 +103,7 @@ func TestMake2D(t *testing.T) {
 			for _, elem := range row {
 				if !(cap(elem) == 4) {
 					t.Errorf("Expected element to be initialized to an empty slice, got %v", elem)
+					return
 				}
 			}
 		}
