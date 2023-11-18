@@ -114,4 +114,6 @@ fabric.properties
 
 # End of https://www.toptal.com/developers/gitignore/api/goland+all,go
 
-*.png
+*_new.png
+# Add explicit ignore for the main gnome testing file
+./gnome.png

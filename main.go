@@ -1,4 +1,4 @@
-package main
+package matrix_image_manipulation
 
 import (
 	"errors"
