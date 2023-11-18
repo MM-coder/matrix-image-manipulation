@@ -79,26 +79,29 @@ func TestMatrixContinuity(t *testing.T) {
 
 // TestMake2D tests the Make2D function, asserting it can correctly make a nxm matrix of type [4]int32 which is our use-case
 func TestMake2D(t *testing.T) {
-	width, height := rand.Intn(100)+1, rand.Intn(100)+1 // As  rand.Intn returns from [0, n] we must add one to assert n is never 0
-	matrix := Make2D[[4]int32](width, height)
+	const testRuns = 20
+	for i := 0; i < testRuns; i++ {
+		width, height := rand.Intn(100)+1, rand.Intn(100)+1 // As  rand.Intn returns from [0, n] we must add one to assert n is never 0
+		matrix := Make2D[[4]int32](width, height)
 
-	// Check if the number of rows is n
-	if len(matrix) != width {
-		t.Errorf("Expected %d rows, got %d", width, len(matrix))
-	}
-
-	// Check if each row has m elements
-	for i, row := range matrix {
-		if len(row) != height {
-			t.Errorf("Expected %d elements in row %d, got %d", height, i, len(row))
+		// Check if the number of rows is n
+		if len(matrix) != width {
+			t.Errorf("Expected %d rows, got %d", width, len(matrix))
 		}
-	}
 
-	// Check if each element's capacity is 4, which is as requirement
-	for _, row := range matrix {
-		for _, elem := range row {
-			if !(cap(elem) == 4) {
-				t.Errorf("Expected element to be initialized to an empty slice, got %v", elem)
+		// Check if each row has m elements
+		for i, row := range matrix {
+			if len(row) != height {
+				t.Errorf("Expected %d elements in row %d, got %d", height, i, len(row))
+			}
+		}
+
+		// Check if each element's capacity is 4, which is as requirement
+		for _, row := range matrix {
+			for _, elem := range row {
+				if !(cap(elem) == 4) {
+					t.Errorf("Expected element to be initialized to an empty slice, got %v", elem)
+				}
 			}
 		}
 	}
