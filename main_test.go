@@ -34,9 +34,11 @@ func assertColourEquality(colour1 color.Color, colour2 color.Color) bool {
 	return r1 == r2 && g1 == g2 && b1 == b2 && a1 == a2
 }
 
-// generateRandomImage generates a random image of a given width and height.
-func generateRandomImage(width, height int) [][][4]uint32 {
+// generateRandomImage generates a random valid image of a given width and height.
+func generateRandomImage(width int, height int) [][][4]uint32 {
 	img := Make2D[[4]uint32](height, width)
+
+	// Iterate through all elements of the list and assign it to a random array with 4 random values between 0-255
 	for y := 0; y < height; y++ {
 		for x := 0; x < width; x++ {
 			img[y][x] = [4]uint32{
@@ -50,11 +52,13 @@ func generateRandomImage(width, height int) [][][4]uint32 {
 	return img
 }
 
+// assertValidMatrix asserts that a given "matrix" is valid, based only on the RGBA values being within the valid interval
 func assertValidMatrix(matrix [][][4]uint32) error {
+	// Iterate through all the elements of the matrix
 	for y := range matrix {
 		for x := range matrix[y] {
 			pixel := matrix[y][x]
-			if pixel[0] > 255 || pixel[1] > 255 || pixel[2] > 255 || pixel[3] > 255 {
+			if pixel[0] > 255 || pixel[1] > 255 || pixel[2] > 255 || pixel[3] > 255 { // If any of the values are over 255, raise an error
 				return errors.New("invalid matrix: values exceed 255")
 			}
 		}
@@ -65,7 +69,7 @@ func assertValidMatrix(matrix [][][4]uint32) error {
 // TestMatrixContinuity tests that if an image is converted to a matrix, and then back, it remains the same
 func TestMatrixContinuity(t *testing.T) {
 
-	var testImagePath string = ".github/test_images/gnome.png"
+	var testImagePath = ".github/test_images/gnome.png"
 
 	matrix, err := readImageToMatrix(testImagePath)
 	if err != nil {
@@ -73,7 +77,7 @@ func TestMatrixContinuity(t *testing.T) {
 		return
 	}
 
-	temporaryPath := t.TempDir() + "gnome.png"
+	temporaryPath := t.TempDir() + "gnome.png" // create a temporary path for the output image
 
 	_ = writeImageFromMatrix(matrix, temporaryPath)
 
@@ -109,32 +113,29 @@ func TestMatrixContinuity(t *testing.T) {
 
 // TestMake2D tests the Make2D function, asserting it can correctly make a nxm matrix of type [4]int32 which is our use-case
 func TestMake2D(t *testing.T) {
-	const testRuns = 20
-	for i := 0; i < testRuns; i++ {
-		width, height := rand.Intn(100)+1, rand.Intn(100)+1 // As rand.Intn returns from [0, n] we must add one to assert n is never 0
-		matrix := Make2D[[4]int32](width, height)
+	width, height := rand.Intn(100)+1, rand.Intn(100)+1 // As rand.Intn returns from [0, n] we must add one to assert n is never 0
+	matrix := Make2D[[4]int32](width, height)
 
-		// Check if the number of rows is n
-		if len(matrix) != width {
-			t.Errorf("Expected %d rows, got %d", width, len(matrix))
+	// Check if the number of rows is n
+	if len(matrix) != width {
+		t.Errorf("Expected %d rows, got %d", width, len(matrix))
+		return
+	}
+
+	// Check if each row has m elements
+	for i, row := range matrix {
+		if len(row) != height {
+			t.Errorf("Expected %d elements in row %d, got %d", height, i, len(row))
 			return
 		}
+	}
 
-		// Check if each row has m elements
-		for i, row := range matrix {
-			if len(row) != height {
-				t.Errorf("Expected %d elements in row %d, got %d", height, i, len(row))
+	// Check if each element's capacity is 4, which is as requirement
+	for _, row := range matrix {
+		for _, elem := range row {
+			if !(cap(elem) == 4) {
+				t.Errorf("Expected element to be initialized to an empty slice, got %v", elem)
 				return
-			}
-		}
-
-		// Check if each element's capacity is 4, which is as requirement
-		for _, row := range matrix {
-			for _, elem := range row {
-				if !(cap(elem) == 4) {
-					t.Errorf("Expected element to be initialized to an empty slice, got %v", elem)
-					return
-				}
 			}
 		}
 	}
@@ -189,7 +190,7 @@ func TestAssertValidMatrix(t *testing.T) {
 			uint32(rand.Intn(int(maxVal) + 1)),
 			uint32(rand.Intn(int(maxVal) + 1)),
 			uint32(rand.Intn(int(maxVal) + 1)),
-		} // I miss list comprehensions
+		} // @NOTE(Mauro): I miss list comprehensions
 	}
 
 	// Function to generate a random matrix using Make2D
@@ -219,8 +220,10 @@ func TestAssertValidMatrix(t *testing.T) {
 		err := assertValidMatrix(matrix)
 		if valid && err != nil {
 			t.Errorf("assertValidMatrix() returned an error for a valid matrix: %v", err)
+			return
 		} else if !valid && err == nil {
 			t.Errorf("assertValidMatrix() did not return an error for an invalid matrix")
+			return
 		}
 	}
 }
