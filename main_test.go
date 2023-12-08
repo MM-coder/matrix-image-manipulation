@@ -73,7 +73,7 @@ func TestMatrixContinuity(t *testing.T) {
 
 	var testImagePath = ".github/test_images/gnome.png"
 
-	matrix, err := readImageToMatrix(testImagePath)
+	matrix, err := utils.ReadImageToMatrix(testImagePath)
 	if err != nil {
 		t.Fatalf("Failed to load the test image: %s", err)
 		return
@@ -81,7 +81,7 @@ func TestMatrixContinuity(t *testing.T) {
 
 	temporaryPath := t.TempDir() + "gnome.png" // create a temporary path for the output image
 
-	_ = writeImageFromMatrix(matrix, temporaryPath)
+	_ = utils.WriteImageFromMatrix(matrix, temporaryPath)
 
 	generatedImage, err := loadImage(temporaryPath)
 	if err != nil {
