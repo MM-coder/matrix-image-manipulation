@@ -59,7 +59,7 @@ func main() {
 	}
 
 	// Write the modified image back to a file
-	outputPath := strings.TrimSuffix(path, filepath.Ext(path)) + "_modified.png"
+	outputPath := strings.TrimSuffix(path, filepath.Ext(path)) + "_new.png"
 	err = writeImageFromMatrix(matrix, outputPath)
 	if err != nil {
 		fmt.Println("Error writing image:", err)
