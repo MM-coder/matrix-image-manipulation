@@ -1,4 +1,4 @@
-package matrix_image_manipulation
+package main
 
 import (
 	"bytes"

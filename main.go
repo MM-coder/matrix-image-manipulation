@@ -1,4 +1,4 @@
-package matrix_image_manipulation
+package main
 
 import (
 	"errors"
@@ -7,26 +7,66 @@ import (
 	"image/color"
 	"image/png"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
 func main() {
-	var path string
+	var path, choice string
+
+	// Request the file path from the user
 	fmt.Print("Input file path: ")
-	_, err := fmt.Scan(&path)
+	_, err := fmt.Scanln(&path)
 	if err != nil {
-		fmt.Println("Error requesting input from user.")
+		fmt.Println("Error requesting input from user:", err)
 		return
 	}
+
+	// Read the image into a matrix
 	matrix, err := readImageToMatrix(path)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("Error reading image:", err)
 		return
 	}
-	//fmt.Println(matrix)
-	matrix, _ = gaussianFilter(matrix, 7, 10.5)
-	_ = writeImageFromMatrix(matrix, strings.TrimSuffix(path, ".png")+"_new.png")
 
+	// Ask the user for the operation to perform
+	fmt.Println("Escolha uma operação:")
+	fmt.Println("1: Filtro Gaussiano")
+	fmt.Println("2: Converter para Grayscale")
+	fmt.Println("Escolha (1 or 2):")
+	_, err = fmt.Scanln(&choice)
+	if err != nil {
+		fmt.Println("Error reading choice:", err)
+		return
+	}
+
+	switch choice {
+	case "1":
+		matrix, err = gaussianFilter(matrix, 7, 10.5)
+		if err != nil {
+			fmt.Println("Erro a aplicar filtro Gaussiano:", err)
+			return
+		}
+	case "2":
+		matrix, err = convertToGreyScale(matrix)
+		if err != nil {
+			fmt.Println("Erro a converter para grayscale:", err)
+			return
+		}
+	default:
+		fmt.Println("Escolha inválida.")
+		return
+	}
+
+	// Write the modified image back to a file
+	outputPath := strings.TrimSuffix(path, filepath.Ext(path)) + "_modified.png"
+	err = writeImageFromMatrix(matrix, outputPath)
+	if err != nil {
+		fmt.Println("Error writing image:", err)
+		return
+	}
+
+	fmt.Println("Operação completada. Output guardado em:", outputPath)
 }
 
 // readImageToMatrix takes a path for a given PNG image and returns a 2D uint8 slice that represents the matrix for that image

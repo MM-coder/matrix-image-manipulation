@@ -1,11 +1,13 @@
-package matrix_image_manipulation
+package main
 
 import (
+	"errors"
 	"fmt"
 	"image"
 	"image/color"
 	"math/rand"
 	"os"
+	"reflect"
 	"strconv"
 	"testing"
 )
@@ -30,6 +32,34 @@ func assertColourEquality(colour1 color.Color, colour2 color.Color) bool {
 	r1, g1, b1, a1 := colour1.RGBA()
 	r2, g2, b2, a2 := colour2.RGBA()
 	return r1 == r2 && g1 == g2 && b1 == b2 && a1 == a2
+}
+
+// generateRandomImage generates a random image of a given width and height.
+func generateRandomImage(width, height int) [][][4]uint32 {
+	image := Make2D[[4]uint32](height, width)
+	for y := 0; y < height; y++ {
+		for x := 0; x < width; x++ {
+			image[y][x] = [4]uint32{
+				uint32(rand.Intn(256)), // Red
+				uint32(rand.Intn(256)), // Green
+				uint32(rand.Intn(256)), // Blue
+				uint32(rand.Intn(256)), // Alpha
+			}
+		}
+	}
+	return image
+}
+
+func assertValidMatrix(matrix [][][4]uint32) error {
+	for y := range matrix {
+		for x := range matrix[y] {
+			pixel := matrix[y][x]
+			if pixel[0] > 255 || pixel[1] > 255 || pixel[2] > 255 || pixel[3] > 255 {
+				return errors.New("invalid matrix: values exceed 255")
+			}
+		}
+	}
+	return nil
 }
 
 // TestMatrixContinuity tests that if an image is converted to a matrix, and then back, it remains the same
@@ -106,6 +136,91 @@ func TestMake2D(t *testing.T) {
 					return
 				}
 			}
+		}
+	}
+}
+
+// TestConvertToGreyScaleWithRandomInput tests convertToGreyScale function with a randomly generated input.
+func TestConvertToGreyScaleWithRandomInput(t *testing.T) {
+
+	width, height := rand.Intn(3841), rand.Intn(2161) // Random dimensions up to 4k
+	randomImage := generateRandomImage(width, height)
+
+	expected := make([][][4]uint32, height)
+	for y := 0; y < height; y++ {
+		expected[y] = make([][4]uint32, width)
+		for x := 0; x < width; x++ {
+			r, g, b, a := randomImage[y][x][0], randomImage[y][x][1], randomImage[y][x][2], randomImage[y][x][3]
+			luminance := uint32(float64(r)*0.299 + float64(g)*0.587 + float64(b)*0.114)
+			expected[y][x] = [4]uint32{luminance, luminance, luminance, a}
+		}
+	}
+
+	result, err := convertToGreyScale(randomImage)
+	if err != nil {
+		t.Errorf("convertToGreyScale() returned an unexpected error: %v", err)
+	}
+	if !reflect.DeepEqual(result, expected) {
+		t.Errorf("convertToGreyScale() result does not match expected output")
+	}
+}
+
+// TestGenerateRandomImage tests the generateRandomImage function.
+func TestGenerateRandomImage(t *testing.T) {
+	width, height := rand.Intn(3841), rand.Intn(2161) // Random dimensions up to 4k
+
+	// Generate a random image
+	randomImage := generateRandomImage(width, height)
+
+	// Assert that the generated image is valid
+	err := assertValidMatrix(randomImage)
+	if err != nil {
+		t.Errorf("generateRandomImage() generated an invalid matrix: %v", err)
+	}
+}
+
+// TestAssertValidMatrix tests the assertValidMatrix function with a random number of valid and invalid matrices.
+func TestAssertValidMatrix(t *testing.T) {
+
+	// Inline function to generate a random pixel
+	generateRandomPixel := func(maxVal uint32) [4]uint32 {
+		return [4]uint32{
+			uint32(rand.Intn(int(maxVal) + 1)),
+			uint32(rand.Intn(int(maxVal) + 1)),
+			uint32(rand.Intn(int(maxVal) + 1)),
+			uint32(rand.Intn(int(maxVal) + 1)),
+		} // I miss list comprehensions
+	}
+
+	// Function to generate a random matrix using Make2D
+	generateRandomMatrix := func(width int, height int, valid bool) [][][4]uint32 {
+		matrix := Make2D[[4]uint32](height, width)
+		maxVal := uint32(255)
+		if !valid {
+			maxVal = 300 // Ensure an invalid matrix
+		}
+		for i := range matrix {
+			for j := range matrix[i] {
+				matrix[i][j] = generateRandomPixel(maxVal)
+			}
+		}
+		return matrix
+	}
+
+	// Generate a random number of test cases
+	numTests := rand.Intn(10) + 1 // At least 1 test, up to 10
+
+	for i := 0; i < numTests; i++ {
+
+		valid := rand.Intn(2) == 0                        // Randomly decide if this matrix should be valid or not
+		width, height := rand.Intn(3841), rand.Intn(2161) // Random dimensions up to 4k
+		matrix := generateRandomMatrix(width, height, valid)
+
+		err := assertValidMatrix(matrix)
+		if valid && err != nil {
+			t.Errorf("assertValidMatrix() returned an error for a valid matrix: %v", err)
+		} else if !valid && err == nil {
+			t.Errorf("assertValidMatrix() did not return an error for an invalid matrix")
 		}
 	}
 }
