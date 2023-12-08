@@ -36,10 +36,10 @@ func assertColourEquality(colour1 color.Color, colour2 color.Color) bool {
 
 // generateRandomImage generates a random image of a given width and height.
 func generateRandomImage(width, height int) [][][4]uint32 {
-	image := Make2D[[4]uint32](height, width)
+	img := Make2D[[4]uint32](height, width)
 	for y := 0; y < height; y++ {
 		for x := 0; x < width; x++ {
-			image[y][x] = [4]uint32{
+			img[y][x] = [4]uint32{
 				uint32(rand.Intn(256)), // Red
 				uint32(rand.Intn(256)), // Green
 				uint32(rand.Intn(256)), // Blue
@@ -47,7 +47,7 @@ func generateRandomImage(width, height int) [][][4]uint32 {
 			}
 		}
 	}
-	return image
+	return img
 }
 
 func assertValidMatrix(matrix [][][4]uint32) error {
