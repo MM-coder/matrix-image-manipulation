@@ -6,6 +6,8 @@ import (
 	"image"
 	"image/color"
 	"math/rand"
+	"matrix-image-manipulation/manipulations"
+	"matrix-image-manipulation/utils"
 	"os"
 	"reflect"
 	"strconv"
@@ -36,7 +38,7 @@ func assertColourEquality(colour1 color.Color, colour2 color.Color) bool {
 
 // generateRandomImage generates a random valid image of a given width and height.
 func generateRandomImage(width int, height int) [][][4]uint32 {
-	img := Make2D[[4]uint32](height, width)
+	img := utils.Make2D[[4]uint32](height, width)
 
 	// Iterate through all elements of the list and assign it to a random array with 4 random values between 0-255
 	for y := 0; y < height; y++ {
@@ -114,7 +116,7 @@ func TestMatrixContinuity(t *testing.T) {
 // TestMake2D tests the Make2D function, asserting it can correctly make a nxm matrix of type [4]int32 which is our use-case
 func TestMake2D(t *testing.T) {
 	width, height := rand.Intn(100)+1, rand.Intn(100)+1 // As rand.Intn returns from [0, n] we must add one to assert n is never 0
-	matrix := Make2D[[4]int32](width, height)
+	matrix := utils.Make2D[[4]int32](width, height)
 
 	// Check if the number of rows is n
 	if len(matrix) != width {
@@ -157,7 +159,7 @@ func TestConvertToGreyScaleWithRandomInput(t *testing.T) {
 		}
 	}
 
-	result, err := convertToGreyScale(randomImage)
+	result, err := manipulations.ConvertToGreyScale(randomImage)
 	if err != nil {
 		t.Errorf("convertToGreyScale() returned an unexpected error: %v", err)
 	}
@@ -195,7 +197,7 @@ func TestAssertValidMatrix(t *testing.T) {
 
 	// Function to generate a random matrix using Make2D
 	generateRandomMatrix := func(width int, height int, valid bool) [][][4]uint32 {
-		matrix := Make2D[[4]uint32](height, width)
+		matrix := utils.Make2D[[4]uint32](height, width)
 		maxVal := uint32(255)
 		if !valid {
 			maxVal = 300 // Ensure an invalid matrix

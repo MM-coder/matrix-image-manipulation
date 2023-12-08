@@ -1,12 +1,13 @@
-package main
+package manipulations
 
 import (
 	"errors"
 	"math"
+	"matrix-image-manipulation/utils"
 )
 
-// gaussianFilter applies a Gaussian filter to a matrix representing an image.
-func gaussianFilter(matrix [][][4]uint32, kernelSize int, sigma float64) ([][][4]uint32, error) {
+// GaussianFilter applies a Gaussian filter to a matrix representing an image.
+func GaussianFilter(matrix [][][4]uint32, kernelSize int, sigma float64) ([][][4]uint32, error) {
 	height := len(matrix) // Get the height of the matrix
 	if height == 0 {
 		return nil, errors.New("empty matrix")
@@ -16,7 +17,7 @@ func gaussianFilter(matrix [][][4]uint32, kernelSize int, sigma float64) ([][][4
 	// Generate the Gaussian kernel with the given size and standard deviation (sigma).
 	kernel := generateGaussianKernel(kernelSize, sigma)
 
-	filteredMatrix := Make2D[[4]uint32](height, width)
+	filteredMatrix := utils.Make2D[[4]uint32](height, width)
 
 	// Apply the Gaussian kernel to each pixel.
 	// kOffset is used to handle border effects by avoiding out-of-bounds indices.
@@ -55,7 +56,7 @@ func applyKernel(x int, y int, matrix [][][4]uint32, kernel [][]float64, kOffset
 // generateGaussianKernel generates a Gaussian kernel for image blurring.
 // The Gaussian kernel is a square matrix used for the blurring effect.
 func generateGaussianKernel(size int, sigma float64) [][]float64 {
-	kernel := Make2D[float64](size, size)
+	kernel := utils.Make2D[float64](size, size)
 
 	sum := 0.0
 	offset := size / 2

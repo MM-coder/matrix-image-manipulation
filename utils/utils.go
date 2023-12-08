@@ -1,4 +1,4 @@
-package main
+package utils
 
 import (
 	"bytes"
@@ -17,9 +17,9 @@ func Make2D[Type any](n, m int) [][]Type {
 	return matrix
 }
 
-// assertSignature asserts that a given os.File's signature (first n bytes of the file) are a given signature
+// AssertSignature asserts that a given os.File's signature (first n bytes of the file) are a given signature
 // this is preferred to using mimetype as Go's built-in mimetype detection is quite deficient
-func assertSignature(file *os.File, signature []byte) (bool, error) {
+func AssertSignature(file *os.File, signature []byte) (bool, error) {
 	fileSignature := make([]byte, len(signature)) // Make a new slice to hold the signature
 	_, err := file.ReadAt(fileSignature, 0)       // read the first N bytes of the file
 	if err != nil {

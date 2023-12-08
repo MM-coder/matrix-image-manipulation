@@ -1,9 +1,12 @@
-package main
+package manipulations
 
-import "errors"
+import (
+	"errors"
+	"matrix-image-manipulation/utils"
+)
 
-// convertToGreyScale converts a matrix to greyscale equivalent
-func convertToGreyScale(matrix [][][4]uint32) ([][][4]uint32, error) {
+// ConvertToGreyScale converts a matrix to greyscale equivalent
+func ConvertToGreyScale(matrix [][][4]uint32) ([][][4]uint32, error) {
 	height := len(matrix) // Get the height of the matrix
 	if height == 0 {
 		return nil, errors.New("empty matrix")
@@ -11,7 +14,7 @@ func convertToGreyScale(matrix [][][4]uint32) ([][][4]uint32, error) {
 
 	width := len(matrix[0])
 
-	greyScaleImage := Make2D[[4]uint32](height, width) // Create a new image
+	greyScaleImage := utils.Make2D[[4]uint32](height, width) // Create a new image
 
 	// Iterate through all pixels
 	for y := 0; y < height; y++ {
