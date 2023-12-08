@@ -15,7 +15,7 @@ func main() {
 	var path, choice string
 
 	// Request the file path from the user
-	fmt.Print("Input file path: ")
+	fmt.Print("Qual o path do ficheiro: ")
 	_, err := fmt.Scanln(&path)
 	if err != nil {
 		fmt.Println("Error requesting input from user:", err)
@@ -33,10 +33,10 @@ func main() {
 	fmt.Println("Escolha uma operação:")
 	fmt.Println("1: Filtro Gaussiano")
 	fmt.Println("2: Converter para Grayscale")
-	fmt.Println("Escolha (1 or 2):")
+	fmt.Print("Escolha (1 ou 2): ")
 	_, err = fmt.Scanln(&choice)
 	if err != nil {
-		fmt.Println("Error reading choice:", err)
+		fmt.Println("Erro a ler a escolha:", err)
 		return
 	}
 
@@ -98,12 +98,21 @@ func readImageToMatrix(path string) ([][][4]uint32, error) {
 	// image.NRGBA however this implementation didn't provide us with an operable 2D matrix
 
 	matrix := Make2D[[4]uint32](width, height)
-	fmt.Println(width, height)
 
 	for y := 0; y < height; y++ {
 		for x := 0; x < width; x++ {
 			r, g, b, a := imageData.At(x, y).RGBA()
-			// @TODO(Mauro): comment or explain why we use 257 instead of any other number
+			// @NOTE(Mauro):In Go, the image.Image interface's At(x, y).RGBA() method returns color values as four
+			// uint32s, where each color component (Red, Green, Blue, Alpha) is represented in the range [0, 65535].
+			// This is essentially a 16-bit per channel representation.
+			//
+			// However, typical image processing and display systems use 8-bit per channel representations,
+			// where each color component is in the range [0, 255].
+			//
+			// 257 is used (which is 65535/255) as the divisor is to properly scale down these 16-bit values
+			// to 8-bit values.
+			// When you divide each component by 257, you map the 16-bit range [0, 65535] to the 8-bit range [0, 255]
+			// effectively.
 			matrix[x][y] = [4]uint32{r / 257, g / 257, b / 257, a / 257}
 		}
 	}
@@ -119,7 +128,8 @@ func writeImageFromMatrix(matrix [][][4]uint32, path string) error {
 	// Iterate through the matrix and set values for each of the pixels
 	for y := 0; y < height; y++ {
 		for x := 0; x < width; x++ {
-			r, g, b, a := matrix[x][y][0], matrix[x][y][1], matrix[x][y][2], matrix[x][y][3]
+			current := matrix[x][y]
+			r, g, b, a := current[0], current[1], current[2], current[3]
 			img.SetNRGBA(x, y, color.NRGBA{R: uint8(r), G: uint8(g), B: uint8(b), A: uint8(a)})
 		}
 	}
