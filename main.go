@@ -30,7 +30,9 @@ func main() {
 	fmt.Println("Escolha uma operação:")
 	fmt.Println("1: Filtro Gaussiano")
 	fmt.Println("2: Converter para Grayscale")
-	fmt.Print("Escolha (1 ou 2): ")
+	fmt.Println("3: Alterar Contraste")
+	fmt.Println("4: Alterar Luminosidade")
+	fmt.Print("Escolha (1, 2, 3 ou 4): ")
 	_, err = fmt.Scanln(&choice)
 	if err != nil {
 		fmt.Println("Erro a ler a escolha:", err)
@@ -50,6 +52,42 @@ func main() {
 			fmt.Println("Erro a converter para grayscale:", err)
 			return
 		}
+	case "3":
+		var m, b float64
+		fmt.Print("3.1: Insira o valor de m: ")
+		_, err = fmt.Scanln(&m)
+		if err != nil {
+			fmt.Println("Erro a ler o valor de m:", err)
+			return
+		}
+		fmt.Print(" 3.2: Insira o valor de b: ")
+		_, err = fmt.Scanln(&b)
+		if err != nil {
+			fmt.Println("Erro a ler o valor de b:", err)
+			return
+		}
+		if b == 1 {
+			b = 255
+		}
+		matrix, err = manipulations.AdjustContrast(matrix, m, b)
+		if err != nil {
+			fmt.Println("Erro a alterar o contraste:", err)
+			return
+		}
+	case "4":
+		var b float64
+		fmt.Print(" 4.1: Insira o valor de b: ")
+		_, err = fmt.Scanln(&b)
+		if err != nil {
+			fmt.Println("Erro a ler o valor de b:", err)
+			return
+		}
+		matrix, err = manipulations.AdjustLuminosity(matrix, b)
+		if err != nil {
+			fmt.Println("Erro a alterar a luminosidade:", err)
+			return
+		}
+
 	default:
 		fmt.Println("Escolha inválida.")
 		return

@@ -229,3 +229,47 @@ func TestAssertValidMatrix(t *testing.T) {
 		}
 	}
 }
+
+func TestAdjustContrast(t *testing.T) {
+
+	width, height := rand.Intn(3841), rand.Intn(2161) // Random dimensions up to 4k
+	randomImage := generateRandomImage(width, height)
+
+	// Example values for m (contrast factor) and b (brightness offset)
+	m := 1.2 // Contrast factor
+	b := 0.0 // Brightness offset
+
+	// Apply the contrast adjustment
+	adjustedImage, err := manipulations.AdjustContrast(randomImage, m, b)
+
+	// Check if any error is returned
+	if err != nil {
+		t.Errorf("AdjustContrast() returned an error: %v", err)
+	}
+
+	// Assert that the adjusted image is valid
+	if err := assertValidMatrix(adjustedImage); err != nil {
+		t.Errorf("AdjustContrast() resulted in an invalid matrix: %v", err)
+	}
+}
+
+func TestAdjustLuminosity(t *testing.T) {
+
+	width, height := rand.Intn(3841), rand.Intn(2161) // Random dimensions up to 4k
+	randomImage := generateRandomImage(width, height)
+
+	b := 50.0 // Brightness offset
+
+	// Apply the contrast adjustment
+	adjustedImage, err := manipulations.AdjustLuminosity(randomImage, b)
+
+	// Check if any error is returned
+	if err != nil {
+		t.Errorf("AdjustLuminosity() returned an error: %v", err)
+	}
+
+	// Assert that the adjusted image is valid
+	if err := assertValidMatrix(adjustedImage); err != nil {
+		t.Errorf("AdjustLuminosity() resulted in an invalid matrix: %v", err)
+	}
+}
