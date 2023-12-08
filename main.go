@@ -60,7 +60,7 @@ func main() {
 			fmt.Println("Erro a ler o valor de m:", err)
 			return
 		}
-		fmt.Print(" 3.2: Insira o valor de b: ")
+		fmt.Print("3.2: Insira o valor de b: ")
 		_, err = fmt.Scanln(&b)
 		if err != nil {
 			fmt.Println("Erro a ler o valor de b:", err)
@@ -76,7 +76,7 @@ func main() {
 		}
 	case "4":
 		var b float64
-		fmt.Print(" 4.1: Insira o valor de b: ")
+		fmt.Print("4.1: Insira o valor de b: ")
 		_, err = fmt.Scanln(&b)
 		if err != nil {
 			fmt.Println("Erro a ler o valor de b:", err)
