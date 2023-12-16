@@ -69,7 +69,8 @@ Escolha (1, 2, 3 ou 4): 3
 3.1: Insira o valor de m: 1
 3.2: Insira o valor de b: -1
 ```
-TIP: If you insert `m=-1` and `b=1` you will invert the image
+> [!TIP]
+> If you insert `m=-1` and `b=1` you will invert the image
 
 ### Brightness
 
